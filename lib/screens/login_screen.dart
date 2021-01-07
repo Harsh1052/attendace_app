@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 10.0,
                     ),
                     Text(
-                      "Professor Login",
+                      "Login",
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -111,8 +111,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(
                       height: 10.0,
                     ),
-                    GestureDetector(
-                      onTap: () async {
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0),
+                          side:
+                              BorderSide(color: Colors.blueAccent, width: 3.0)),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 120.0, vertical: 10.0),
+                      color: Colors.blue,
+                      onPressed: () async {
                         setState(() {
                           loading = true;
                         });
@@ -154,19 +161,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: 16.0);
                         }
                       },
-                      child: Container(
-                        padding: EdgeInsets.all(10.0),
-                        width: MediaQuery.of(context).size.width - 80,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25.0),
-                          color: Colors.black26,
-                        ),
-                        child: Text(
-                          "Login",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 20.0, fontWeight: FontWeight.w400),
-                        ),
+                      child: Text(
+                        "Login",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 20.0, fontWeight: FontWeight.bold),
                       ),
                     )
                   ],
