@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'calener_screen.dart';
 
@@ -169,7 +170,15 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                 await fireStore
                                     .collection("attendanceData")
                                     .doc(_id)
-                                    .update({"documentID": _id});
+                                    .update({"documentID": _id}).whenComplete(
+                                        () => Fluttertoast.showToast(
+                                            msg:
+                                                "Present:- ${sUserName[index]}",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            timeInSecForIosWeb: 1,
+                                            backgroundColor: Colors.green,
+                                            textColor: Colors.white,
+                                            fontSize: 16.0));
                               } else {
                                 var attendanceData = await fireStore
                                     .collection("attendanceData")
@@ -188,7 +197,14 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                 await fireStore
                                     .collection("attendanceData")
                                     .doc(_id)
-                                    .update({"documentID": _id});
+                                    .update({"documentID": _id}).whenComplete(
+                                        () => Fluttertoast.showToast(
+                                            msg: "Absent:- ${sUserName[index]}",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            timeInSecForIosWeb: 1,
+                                            backgroundColor: Colors.red,
+                                            textColor: Colors.white,
+                                            fontSize: 16.0));
                               }
                             },
                             secondaryBackground: Container(

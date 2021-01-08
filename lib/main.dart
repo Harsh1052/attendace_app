@@ -3,10 +3,13 @@ import 'package:attendace_app/screens/login_screen.dart';
 import 'package:attendace_app/screens/student_home_screen.dart';
 import 'package:attendace_app/screens/year_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:lottie/lottie.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,14 +24,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final _fireStore = FirebaseFirestore.instance;
-
   final _auth = FirebaseAuth.instance;
 
-  bool isStudent, isUserLogIn;
+  bool isStudent, isUserLogIn, connectivity = false;
   @override
   void initState() {
+    checkConnectivity();
     // TODO: implement initState
     super.initState();
+
     checkUser();
   }
 
@@ -47,7 +51,13 @@ class _MyAppState extends State<MyApp> {
               child: Image.asset(
                 "assets/images/college_logo.jpg",
               )),
-          nextScreen: nextScreen(),
+          nextScreen: connectivity
+              ? nextScreen()
+              : Scaffold(
+                  body: Center(
+                  child: Lottie.asset(
+                      "assets/lotties/no_internet_connection.json"),
+                )),
           backgroundColor: Colors.white,
           duration: 2000,
           splashTransition: SplashTransition.sizeTransition,
@@ -68,6 +78,20 @@ class _MyAppState extends State<MyApp> {
           }
         }
       }
+    }
+  }
+
+  checkConnectivity() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    print(connectivityResult);
+    if (connectivityResult == ConnectivityResult.none) {
+      connectivity = false;
+      Fluttertoast.showToast(
+          msg: "No Internet Connection",
+          backgroundColor: Colors.red,
+          toastLength: Toast.LENGTH_LONG);
+    } else {
+      connectivity = true;
     }
   }
 
