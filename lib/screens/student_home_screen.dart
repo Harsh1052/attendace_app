@@ -32,6 +32,8 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   String id;
   String imageURL;
   bool loading = true;
+  Map<String, int> presentCount = {};
+  Map<String, int> totalCount = {};
   @override
   void initState() {
     // TODO: implement initState
@@ -41,6 +43,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    presentCount.clear();
+    totalCount.clear();
+
     List<String> userN = currentUser.split("@");
 
     return Scaffold(
@@ -83,6 +88,8 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               visible: loading,
               child: StreamBuilder<QuerySnapshot>(
                 builder: (context, snapshot) {
+                  presentCount.clear();
+                  totalCount.clear();
                   if (!snapshot.hasData) {
                     return Center(child: CircularProgressIndicator());
                   }
@@ -143,121 +150,125 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   if (isStudent == false) {
                     return ListView.builder(
                       physics: BouncingScrollPhysics(),
-                      itemBuilder: (context, index) => Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Card(
-                          elevation: 3.0,
-                          shadowColor: Colors.grey,
-                          color: Colors.lightBlueAccent,
-                          child: Dismissible(
-                            key: Key(id),
-                            onDismissed: (direction) async {
-                              if (direction == DismissDirection.startToEnd) {
-                                var attendanceData = await fireStore
-                                    .collection("attendanceData")
-                                    .add({
-                                  "present": true,
-                                  "studentName": sUserName[index],
-                                  "date": DateTime.now(),
-                                  "documentID": "no id",
-                                  "professorID": id,
-                                  "professorName": nameP,
-                                  "studentID": sID[index],
-                                });
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            elevation: 3.0,
+                            shadowColor: Colors.grey,
+                            color: Colors.lightBlueAccent,
+                            child: Dismissible(
+                              key: Key(id),
+                              onDismissed: (direction) async {
+                                if (direction == DismissDirection.startToEnd) {
+                                  var attendanceData = await fireStore
+                                      .collection("attendanceData")
+                                      .add({
+                                    "present": true,
+                                    "studentName": sUserName[index],
+                                    "date": DateTime.now(),
+                                    "documentID": "no id",
+                                    "professorID": id,
+                                    "professorName": nameP,
+                                    "studentID": sID[index],
+                                  });
 
-                                String _id = attendanceData.id;
+                                  String _id = attendanceData.id;
 
-                                await fireStore
-                                    .collection("attendanceData")
-                                    .doc(_id)
-                                    .update({"documentID": _id}).whenComplete(
-                                        () => Fluttertoast.showToast(
-                                            msg:
-                                                "Present:- ${sUserName[index]}",
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            timeInSecForIosWeb: 1,
-                                            backgroundColor: Colors.green,
-                                            textColor: Colors.white,
-                                            fontSize: 16.0));
-                              } else {
-                                var attendanceData = await fireStore
-                                    .collection("attendanceData")
-                                    .add({
-                                  "present": false,
-                                  "studentName": sUserName[index],
-                                  "date": DateTime.now(),
-                                  "documentID": "no id",
-                                  "professorID": id,
-                                  "professorName": nameP,
-                                  "studentID": sID[index],
-                                });
+                                  await fireStore
+                                      .collection("attendanceData")
+                                      .doc(_id)
+                                      .update({
+                                    "documentID": _id
+                                  }).whenComplete(() => Fluttertoast.showToast(
+                                          msg: "Present:- ${sUserName[index]}",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.green,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0));
+                                } else {
+                                  var attendanceData = await fireStore
+                                      .collection("attendanceData")
+                                      .add({
+                                    "present": false,
+                                    "studentName": sUserName[index],
+                                    "date": DateTime.now(),
+                                    "documentID": "no id",
+                                    "professorID": id,
+                                    "professorName": nameP,
+                                    "studentID": sID[index],
+                                  });
 
-                                String _id = attendanceData.id;
+                                  String _id = attendanceData.id;
 
-                                await fireStore
-                                    .collection("attendanceData")
-                                    .doc(_id)
-                                    .update({"documentID": _id}).whenComplete(
-                                        () => Fluttertoast.showToast(
-                                            msg: "Absent:- ${sUserName[index]}",
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            timeInSecForIosWeb: 1,
-                                            backgroundColor: Colors.red,
-                                            textColor: Colors.white,
-                                            fontSize: 16.0));
-                              }
-                            },
-                            secondaryBackground: Container(
-                              color: Colors.red,
-                              alignment: Alignment.centerRight,
-                              padding: EdgeInsets.symmetric(horizontal: 30.0),
-                              child: Icon(
-                                Icons.close,
-                                color: Colors.white,
-                              ),
-                            ),
-                            background: Container(
-                              color: Colors.green,
-                              alignment: Alignment.centerLeft,
-                              padding: EdgeInsets.symmetric(horizontal: 30.0),
-                              child: Icon(
-                                Icons.done,
-                                color: Colors.white,
-                              ),
-                            ),
-                            child: ListTile(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => CalendarScreen(
-                                              currentUserID: id,
-                                              studentID: sID[index],
-                                            )));
+                                  await fireStore
+                                      .collection("attendanceData")
+                                      .doc(_id)
+                                      .update({
+                                    "documentID": _id
+                                  }).whenComplete(() => Fluttertoast.showToast(
+                                          msg: "Absent:- ${sUserName[index]}",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0));
+                                }
                               },
-                              title: Text(sUserName[index] + ""),
-                              subtitle: Text(sUserEnrollNo[index] + ""),
-                              leading: Container(
-                                height: 50.0,
-                                width: 50.0,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    color: Colors.grey),
-                                child: Center(
-                                    child: sImageURL[index] != "no URL"
-                                        ? CircleAvatar(
-                                            radius: 35.0,
-                                            backgroundImage:
-                                                NetworkImage(sImageURL[index]),
-                                            backgroundColor: Colors.transparent,
-                                          )
-                                        : Icon(Icons.person)),
+                              secondaryBackground: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                padding: EdgeInsets.symmetric(horizontal: 30.0),
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                ),
                               ),
-                              tileColor: Colors.lightBlueAccent,
+                              background: Container(
+                                color: Colors.green,
+                                alignment: Alignment.centerLeft,
+                                padding: EdgeInsets.symmetric(horizontal: 30.0),
+                                child: Icon(
+                                  Icons.done,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              child: ListTile(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => CalendarScreen(
+                                                currentUserID: id,
+                                                studentID: sID[index],
+                                              )));
+                                },
+                                title: Text(sUserName[index] + ""),
+                                subtitle: Text(sUserEnrollNo[index] + ""),
+                                leading: Container(
+                                  height: 50.0,
+                                  width: 50.0,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25.0),
+                                      color: Colors.grey),
+                                  child: Center(
+                                      child: sImageURL[index] != "no URL"
+                                          ? CircleAvatar(
+                                              radius: 35.0,
+                                              backgroundImage: NetworkImage(
+                                                  sImageURL[index]),
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                            )
+                                          : Icon(Icons.person)),
+                                ),
+                                tileColor: Colors.lightBlueAccent,
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                       itemCount: sUserName.length,
                     );
                   } else {

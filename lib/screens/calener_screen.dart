@@ -1,3 +1,4 @@
+import 'package:attendace_app/wigets/custom_painter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -18,6 +19,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   CalendarController _calendarController;
   Map<DateTime, List<dynamic>> _events;
   List<dynamic> _onSelectedDay;
+  int t = 5, a = 2;
+  String name = "";
 
   @override
   void initState() {
@@ -26,51 +29,172 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _calendarController = CalendarController();
     _events = {};
     _onSelectedDay = [];
-    addEvents();
+    WidgetsBinding.instance.addPostFrameCallback((_) => addEvents(context));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          name,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(10.0),
-              child: TableCalendar(
-                events: _events,
-                calendarController: _calendarController,
-                initialCalendarFormat: CalendarFormat.month,
-                builders: CalendarBuilders(
-                  markersBuilder: (context, date, events, holiday) {
-                    final children = <Widget>[];
+        child: ListView(children: [
+          Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(10.0),
+                child: TableCalendar(
+                  events: _events,
+                  calendarController: _calendarController,
+                  initialCalendarFormat: CalendarFormat.month,
+                  builders: CalendarBuilders(
+                    markersBuilder: (context, date, events, holiday) {
+                      final children = <Widget>[];
 
-                    if (events.isNotEmpty) {
-                      children.add(
-                          Positioned(child: _buildEventsmarker(date, events)));
-                    }
-                    return children;
+                      if (events.isNotEmpty) {
+                        children.add(Positioned(
+                            child: _buildEventsmarker(date, events)));
+                      }
+                      return children;
+                    },
+                  ),
+                  onDaySelected: (date, list, events) {
+                    setState(() {
+                      _onSelectedDay = list;
+                    });
                   },
                 ),
-                onDaySelected: (date, list, events) {
-                  setState(() {
-                    _onSelectedDay = list;
-                  });
-                },
               ),
-            ),
-            ..._onSelectedDay.map((e) => ListTile(
-                  title: Text(
-                    e,
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20.0,
+              ..._onSelectedDay.map((e) => ListTile(
+                    title: Text(
+                      e,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                  )),
+              SizedBox(
+                height: 20.0,
+              ),
+              Text(
+                "Attendance Pie Chart",
+                style: TextStyle(
+                    color: Colors.lightBlue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.0),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                            text: "⨷ ",
+                            style: TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold),
+                            children: [
+                              TextSpan(
+                                  text: "Present:-$a",
+                                  style: TextStyle(color: Colors.green)),
+                            ]),
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                            text: "⨷ ",
+                            style: TextStyle(
+                                color: Colors.red, fontWeight: FontWeight.bold),
+                            children: [
+                              TextSpan(
+                                  text: "Absent:-${t - a}",
+                                  style: TextStyle(color: Colors.red)),
+                            ]),
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      Text(
+                        "⨷ Total:-${t}",
+                        style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.bold),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    width: 30.0,
+                  ),
+                  Center(
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: 180.0,
+                          width: 180.0,
+                          decoration:
+                              BoxDecoration(shape: BoxShape.circle, boxShadow: [
+                            BoxShadow(
+                                spreadRadius: -1,
+                                blurRadius: 8,
+                                offset: Offset(4, 4),
+                                color: Colors.black38),
+                            BoxShadow(
+                                spreadRadius: -10,
+                                blurRadius: 17,
+                                offset: Offset(-5, -5),
+                                color: Colors.white),
+                          ]),
+                          padding: EdgeInsets.all(20.0),
+                          child: CustomPaint(
+                            painter: StudentPainter(total: t, present: a),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 65,
+                          right: 65,
+                          child: Center(
+                              child: Container(
+                            height: 50,
+                            width: 50,
+                            child: Center(
+                              child: Text(
+                                "${(a * 100 / t).toStringAsFixed(0)}%",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue),
+                              ),
+                            ),
+                            decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      spreadRadius: -1,
+                                      blurRadius: 8,
+                                      offset: Offset(3, 3),
+                                      color: Colors.black54)
+                                ],
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30.0)),
+                          )),
+                        ),
+                      ],
                     ),
                   ),
-                )),
-          ],
-        ),
+                ],
+              )
+            ],
+          ),
+        ]),
       ),
     );
   }
@@ -93,7 +217,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  addEvents() async {
+  addEvents(BuildContext context) async {
+    t = 0;
+    a = 0;
     if (widget.studentID == null) {
       var data = await _fireStore
           .collection("attendanceData")
@@ -102,12 +228,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
           .get();
       setState(() {
         for (var d in data.docs) {
+          t = t + 1;
+          name = d.data()["professorName"];
           if (d.data()["present"] == false) {
             Timestamp t = d.data()["date"];
             DateTime dt = t.toDate();
             _events[dt] = [
               "You did not attend ${d.data()["professorName"]}'s lecture on this day"
             ];
+          } else {
+            a = a + 1;
           }
         }
       });
@@ -117,15 +247,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
           .where("professorID", isEqualTo: widget.currentUserID)
           .where("studentID", isEqualTo: widget.studentID)
           .get();
-      for (var d in data.docs) {
-        if (d.data()["present"] == false) {
-          Timestamp t = d.data()["date"];
-          DateTime dt = t.toDate();
-          _events[dt] = [
-            "This student did not attend ${d.data()["professorName"]}'s lecture on this day"
-          ];
+      setState(() {
+        for (var d in data.docs) {
+          t = t + 1;
+          name = d.data()["studentName"];
+          if (d.data()["present"] == false) {
+            Timestamp t = d.data()["date"];
+            DateTime dt = t.toDate();
+            _events[dt] = [
+              "This student did not attend ${d.data()["professorName"]}'s lecture on this day"
+            ];
+          } else {
+            a = a + 1;
+          }
         }
-      }
+      });
     }
   }
 }

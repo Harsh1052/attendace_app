@@ -29,11 +29,12 @@ class _MyAppState extends State<MyApp> {
   bool isStudent, isUserLogIn, connectivity = false;
   @override
   void initState() {
-    checkConnectivity();
     // TODO: implement initState
     super.initState();
-
-    checkUser();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkUser(context);
+      checkConnectivity(context);
+    });
   }
 
   @override
@@ -64,7 +65,7 @@ class _MyAppState extends State<MyApp> {
         ));
   }
 
-  checkUser() async {
+  checkUser(BuildContext context) async {
     if (_auth.currentUser != null) {
       isUserLogIn = true;
       final userF = await _fireStore.collection("users").get();
@@ -81,17 +82,21 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  checkConnectivity() async {
+  checkConnectivity(BuildContext context) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    print(connectivityResult);
     if (connectivityResult == ConnectivityResult.none) {
-      connectivity = false;
+      setState(() {
+        connectivity = false;
+      });
+
       Fluttertoast.showToast(
           msg: "No Internet Connection",
           backgroundColor: Colors.red,
           toastLength: Toast.LENGTH_LONG);
     } else {
-      connectivity = true;
+      setState(() {
+        connectivity = true;
+      });
     }
   }
 
