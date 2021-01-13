@@ -191,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  checkUser() async {
+  Future<void> checkUser() async {
     if (_auth.currentUser != null) {
       final userF = await _fireStore.collection("users").get();
 

@@ -48,9 +48,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
               Container(
                 padding: EdgeInsets.all(10.0),
                 child: TableCalendar(
+                  startingDayOfWeek: StartingDayOfWeek.monday,
+                  formatAnimation: FormatAnimation.slide,
                   events: _events,
                   calendarController: _calendarController,
-                  initialCalendarFormat: CalendarFormat.month,
+                  initialCalendarFormat: CalendarFormat.twoWeeks,
                   builders: CalendarBuilders(
                     markersBuilder: (context, date, events, holiday) {
                       final children = <Widget>[];
@@ -217,7 +219,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  addEvents(BuildContext context) async {
+  Future<void> addEvents(BuildContext context) async {
     t = 0;
     a = 0;
     if (widget.studentID == null) {

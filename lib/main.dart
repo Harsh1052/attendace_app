@@ -11,7 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:lottie/lottie.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   initializeDateFormatting().then((_) => runApp(MyApp()));
@@ -46,6 +46,7 @@ class _MyAppState extends State<MyApp> {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: AnimatedSplashScreen(
+          curve: Curves.bounceIn,
           splash: Container(
               height: 300.0,
               width: 300.0,
@@ -65,7 +66,7 @@ class _MyAppState extends State<MyApp> {
         ));
   }
 
-  checkUser(BuildContext context) async {
+  Future<void> checkUser(BuildContext context) async {
     if (_auth.currentUser != null) {
       isUserLogIn = true;
       final userF = await _fireStore.collection("users").get();
@@ -82,7 +83,7 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  checkConnectivity(BuildContext context) async {
+  Future<void> checkConnectivity(BuildContext context) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
