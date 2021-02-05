@@ -31,7 +31,7 @@ dependencies:
   lottie:
   firebase_core: ^0.7.0
   cloud_firestore: ^0.16.0
-  firebase_auth: ^0.20.0
+  firebase_auth: ^0.20.0+1
   animated_splash_screen: ^1.0.1+2
   firebase_storage: ^7.0.0
   image_picker: ^0.6.7+17
@@ -40,6 +40,7 @@ dependencies:
   fluttertoast: ^7.1.6
   connectivity: ^2.0.2
   flutter_local_notifications: ^3.0.3
+  workmanager: ^0.2.3
 
 dev_dependencies:
   flutter_test:

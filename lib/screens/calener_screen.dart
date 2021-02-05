@@ -14,7 +14,10 @@ class CalendarScreen extends StatefulWidget {
   _CalendarScreenState createState() => _CalendarScreenState();
 }
 
-class _CalendarScreenState extends State<CalendarScreen> {
+class _CalendarScreenState extends State<CalendarScreen>
+    with SingleTickerProviderStateMixin {
+  AnimationController controller;
+  Animation animation;
   final _fireStore = FirebaseFirestore.instance;
   CalendarController _calendarController;
   Map<DateTime, List<dynamic>> _events;
@@ -30,6 +33,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _events = {};
     _onSelectedDay = [];
     WidgetsBinding.instance.addPostFrameCallback((_) => addEvents(context));
+    controller = AnimationController(
+      duration: Duration(
+        seconds: 2,
+      ),
+      vsync: this,
+    );
+    animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.bounceOut,
+    );
+    controller.forward();
+
+    controller.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -142,8 +160,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     child: Stack(
                       children: [
                         Container(
-                          height: 180.0,
-                          width: 180.0,
+                          height: animation.value * 180,
+                          width: animation.value * 180,
                           decoration:
                               BoxDecoration(shape: BoxShape.circle, boxShadow: [
                             BoxShadow(
@@ -167,8 +185,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           right: 65,
                           child: Center(
                               child: Container(
-                            height: 50,
-                            width: 50,
+                            height: animation.value * 50,
+                            width: animation.value * 50,
                             child: Center(
                               child: Text(
                                 "${(a * 100 / t).toStringAsFixed(0)}%",
@@ -206,6 +224,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     // TODO: implement dispose
     super.dispose();
     _calendarController.dispose();
+    controller.dispose();
   }
 
   _buildEventsmarker(DateTime, List events) {

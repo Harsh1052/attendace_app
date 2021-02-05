@@ -1,3 +1,4 @@
+import 'package:attendace_app/model/checking_data.dart';
 import 'package:attendace_app/screens/profile_screen.dart';
 import 'package:attendace_app/screens/student_home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,6 +20,9 @@ class _YearScreenState extends State<YearScreen> {
   @override
   Widget build(BuildContext context) {
     userList = _auth.email.toString().split("@");
+    CheckingData c = CheckingData();
+    c.checkingData();
+    c.workManager();
     return Scaffold(
       drawer: Drawer(
         child: SafeArea(

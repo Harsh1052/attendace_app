@@ -1,11 +1,10 @@
-import 'package:attendace_app/main.dart';
+import 'package:attendace_app/model/checking_data.dart';
 import 'package:attendace_app/screens/login_screen.dart';
 import 'package:attendace_app/screens/profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'calener_screen.dart';
@@ -19,8 +18,6 @@ class StudentHomeScreen extends StatefulWidget {
 }
 
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
-  FlutterLocalNotificationsPlugin flutterNotificationPlugin;
-
   var auth = FirebaseAuth.instance;
   var fireStore = FirebaseFirestore.instance;
   bool isStudent;
@@ -45,16 +42,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     // TODO: implement initState
     super.initState();
     currentUser = auth.currentUser.email;
-
-    var androidinitilize = new AndroidInitializationSettings('college_logo');
-    var iosInitilize = new IOSInitializationSettings();
-    var initializationSetting = new InitializationSettings(
-        android: androidinitilize, iOS: iosInitilize);
-
-    flutterNotificationPlugin = new FlutterLocalNotificationsPlugin();
-
-    flutterNotificationPlugin.initialize(initializationSetting,
-        onSelectNotification: _selectedMessage());
   }
 
   @override
@@ -176,6 +163,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                             child: Dismissible(
                               key: Key(id),
                               onDismissed: (direction) async {
+                                String _id;
                                 if (direction == DismissDirection.startToEnd) {
                                   var attendanceData = await fireStore
                                       .collection("attendanceData")
@@ -187,9 +175,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                     "professorID": id,
                                     "professorName": nameP,
                                     "studentID": sID[index],
+                                    "StudentYear": widget.index.toString()
                                   });
 
-                                  String _id = attendanceData.id;
+                                  _id = attendanceData.id;
 
                                   await fireStore
                                       .collection("attendanceData")
@@ -214,9 +203,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                     "professorID": id,
                                     "professorName": nameP,
                                     "studentID": sID[index],
+                                    "StudentYear": widget.index.toString()
                                   });
 
-                                  String _id = attendanceData.id;
+                                  _id = attendanceData.id;
 
                                   await fireStore
                                       .collection("attendanceData")
@@ -230,10 +220,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                           backgroundColor: Colors.red,
                                           textColor: Colors.white,
                                           fontSize: 16.0));
-                                }
-                                if (notification) {
-                                  _showNotification(nameP, widget.index);
-                                  notification = false;
                                 }
                               },
                               secondaryBackground: Container(
@@ -292,6 +278,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       itemCount: sUserName.length,
                     );
                   } else {
+                    CheckingData c = CheckingData();
+                    c.checkingData();
+                    c.workManager();
                     return ListView.builder(
                         itemCount: pFirstName.length,
                         itemBuilder: (context, index) => Padding(
@@ -328,21 +317,5 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               ),
             ),
     );
-  }
-
-  _showNotification(String professorName, int year) async {
-    var anroidNotificationDetails = new AndroidNotificationDetails(
-        "Channel ID", "Harsh Sureja", "Hi How is Attendance App",
-        importance: Importance.max);
-    var iosNotificationDetails = new IOSNotificationDetails();
-    var generalNotification = new NotificationDetails(
-        android: anroidNotificationDetails, iOS: iosNotificationDetails);
-
-    flutterNotificationPlugin.show(0, "Attendance For $year year",
-        "$year Year Attendance Taken By $professorName. ", generalNotification);
-  }
-
-  _selectedMessage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp()));
   }
 }

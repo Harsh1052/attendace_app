@@ -178,9 +178,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Visibility(
                     visible: visibleKey,
                     child: Center(
-                      child: Container(
-                        width: 300.0,
-                        child: Image.asset("assets/images/college_logo.jpg"),
+                      child: Hero(
+                        tag:'college',
+                        child: Container(
+                          width: 300.0,
+                          child: Image.asset("assets/images/college_logo.jpg"),
+                        ),
                       ),
                     ),
                   ))
