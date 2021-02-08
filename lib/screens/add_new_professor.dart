@@ -133,7 +133,7 @@ class _AddProfessorScreenState extends State<AddProfessorScreen> {
     return items;
   }
 
-  addUser(
+  Future<void> addUser(
       String firstName, String lastName, String mobileNo, String status) async {
     if (firstName != null &&
         lastName != null &&

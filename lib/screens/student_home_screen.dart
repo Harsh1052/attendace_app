@@ -1,3 +1,4 @@
+import 'package:attendace_app/model/checking_data.dart';
 import 'package:attendace_app/screens/login_screen.dart';
 import 'package:attendace_app/screens/profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,6 +22,8 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   var fireStore = FirebaseFirestore.instance;
   bool isStudent;
   String currentUser;
+
+  bool notification = true;
 
   String branchP;
   String enrollNoP;
@@ -160,6 +163,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                             child: Dismissible(
                               key: Key(id),
                               onDismissed: (direction) async {
+                                String _id;
                                 if (direction == DismissDirection.startToEnd) {
                                   var attendanceData = await fireStore
                                       .collection("attendanceData")
@@ -171,9 +175,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                     "professorID": id,
                                     "professorName": nameP,
                                     "studentID": sID[index],
+                                    "StudentYear": widget.index.toString()
                                   });
 
-                                  String _id = attendanceData.id;
+                                  _id = attendanceData.id;
 
                                   await fireStore
                                       .collection("attendanceData")
@@ -198,9 +203,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                     "professorID": id,
                                     "professorName": nameP,
                                     "studentID": sID[index],
+                                    "StudentYear": widget.index.toString()
                                   });
 
-                                  String _id = attendanceData.id;
+                                  _id = attendanceData.id;
 
                                   await fireStore
                                       .collection("attendanceData")
@@ -272,6 +278,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       itemCount: sUserName.length,
                     );
                   } else {
+                    CheckingData c = CheckingData();
+                    c.checkingData();
+                    c.workManager();
                     return ListView.builder(
                         itemCount: pFirstName.length,
                         itemBuilder: (context, index) => Padding(

@@ -1,5 +1,6 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:attendace_app/screens/login_screen.dart';
+import 'package:attendace_app/screens/no_internet.dart';
 import 'package:attendace_app/screens/student_home_screen.dart';
 import 'package:attendace_app/screens/year_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,14 +8,61 @@ import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:lottie/lottie.dart';
+import 'package:workmanager/workmanager.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  initializeDateFormatting().then((_) => runApp(MyApp()));
+  Workmanager.initialize(callbackDispatcher);
+
+  runApp(MyApp());
+}
+
+void callbackDispatcher() {
+  Workmanager.executeTask((task, inputData) {
+    // initialise the plugin of flutterlocalnotifications.
+    FlutterLocalNotificationsPlugin flip =
+        new FlutterLocalNotificationsPlugin();
+
+    // app_icon needs to be a added as a drawable
+    // resource to the Android head project.
+    var android = new AndroidInitializationSettings('college_logo');
+    var IOS = new IOSInitializationSettings();
+
+    // initialise settings for both Android and iOS device.
+    var settings = new InitializationSettings(android: android, iOS: IOS);
+    flip.initialize(settings);
+    // CheckingData c = CheckingData();
+    // c.checkingData();
+
+    _showNotificationWithDefaultSound(flip, task);
+    print("In If Loop");
+
+    // _showNotificationWithDefaultSound(flip, task);
+    return Future.value(true);
+  });
+}
+
+Future _showNotificationWithDefaultSound(flip, String data) async {
+  // Show a notification after every 15 minute with the first
+  // appearance happening a minute after invoking the method
+  var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+    'My ID',
+    'Harsh Sureja',
+    'Unknown',
+    importance: Importance.max,
+    priority: Priority.high,
+  );
+  var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+
+  // initialise channel platform for both Android and iOS device.
+  var platformChannelSpecifics = new NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics);
+  await flip.show(0, 'Attendance App', data, platformChannelSpecifics,
+      payload: 'Default_Sound');
 }
 
 class MyApp extends StatefulWidget {
@@ -29,12 +77,10 @@ class _MyAppState extends State<MyApp> {
   bool isStudent, isUserLogIn, connectivity = false;
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      checkUser(context);
       checkConnectivity(context);
     });
+    super.initState();
   }
 
   @override
@@ -46,19 +92,26 @@ class _MyAppState extends State<MyApp> {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: AnimatedSplashScreen(
-          splash: Container(
-              height: 300.0,
-              width: 300.0,
-              child: Image.asset(
-                "assets/images/college_logo.jpg",
-              )),
-          nextScreen: connectivity
-              ? nextScreen()
-              : Scaffold(
-                  body: Center(
-                  child: Lottie.asset(
-                      "assets/lotties/no_internet_connection.json"),
+          curve: Curves.bounceIn,
+          splash: Hero(
+            tag: 'college',
+            child: Container(
+                height: 300.0,
+                width: 300.0,
+                child: Image.asset(
+                  "assets/images/college_logo.jpg",
                 )),
+          ),
+          nextScreen: FutureBuilder(
+            builder: (context, initialData) {
+              if (connectivity) {
+                return nextScreen();
+              } else {
+                return NoInternet();
+              }
+            },
+            future: checkUser(context),
+          ),
           backgroundColor: Colors.white,
           duration: 2000,
           splashTransition: SplashTransition.sizeTransition,
@@ -66,14 +119,21 @@ class _MyAppState extends State<MyApp> {
   }
 
   checkUser(BuildContext context) async {
+    print("CheckUser 1");
     if (_auth.currentUser != null) {
+      print("CheckUser 2");
       isUserLogIn = true;
-      final userF = await _fireStore.collection("users").get();
-
+      final userF = await _fireStore
+          .collection("users")
+          .where("username", isEqualTo: _auth.currentUser.email)
+          .get();
+      print(userF.docs.length);
       for (var user in userF.docs) {
         if (user.data()["username"] == _auth.currentUser.email.toString()) {
           if (user.data()["isStudent"]) {
+            print("CheckUser 3");
             isStudent = true;
+            print(isStudent);
           } else {
             isStudent = false;
           }
@@ -101,9 +161,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget nextScreen() {
+    print("UserLogin" + isUserLogIn.toString());
+    print("Student" + isStudent.toString());
     if (isUserLogIn == true && isStudent == true) {
+      print("Student Screen");
       return StudentHomeScreen();
-    } else if (isUserLogIn == true) {
+    } else if (isUserLogIn == true && isStudent == false) {
+      print("Year Screen");
       return YearScreen();
     } else {
       return LoginScreen();

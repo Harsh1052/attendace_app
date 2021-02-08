@@ -193,7 +193,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
     return yearsList;
   }
 
-  addStudentData() async {
+  Future<void> addStudentData() async {
     if (branches != null &&
         selectedYear != null &&
         fullName != null &&

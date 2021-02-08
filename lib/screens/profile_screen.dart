@@ -148,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  pickPicture() async {
+  Future<void> pickPicture() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
 
     setState(() {
@@ -162,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  uploadImage(File file) async {
+  Future<void> uploadImage(File file) async {
     setState(() {
       loading = true;
     });
@@ -181,13 +181,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           loading = false;
         });
       });
-      retriveImage();
+      retrevieImage();
     } catch (e) {
       print("Error:-------" + e);
     }
   }
 
-  retriveImage() async {
+  Future<void> retrevieImage() async {
     setState(() {
       loading = true;
     });
