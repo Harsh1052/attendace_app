@@ -49,8 +49,12 @@ Future _showNotificationWithDefaultSound(flip, String data) async {
   // Show a notification after every 15 minute with the first
   // appearance happening a minute after invoking the method
   var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
-      'your channel id', 'your channel name', 'your channel description',
-      importance: Importance.max, priority: Priority.high);
+    'My ID',
+    'Harsh Sureja',
+    'Unknown',
+    importance: Importance.max,
+    priority: Priority.high,
+  );
   var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
 
   // initialise channel platform for both Android and iOS device.
@@ -73,12 +77,10 @@ class _MyAppState extends State<MyApp> {
   bool isStudent, isUserLogIn, connectivity = false;
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      checkUser(context);
       checkConnectivity(context);
     });
+    super.initState();
   }
 
   @override
@@ -100,22 +102,38 @@ class _MyAppState extends State<MyApp> {
                   "assets/images/college_logo.jpg",
                 )),
           ),
-          nextScreen: connectivity ? nextScreen() : NoInternet(),
+          nextScreen: FutureBuilder(
+            builder: (context, initialData) {
+              if (connectivity) {
+                return nextScreen();
+              } else {
+                return NoInternet();
+              }
+            },
+            future: checkUser(context),
+          ),
           backgroundColor: Colors.white,
           duration: 2000,
           splashTransition: SplashTransition.sizeTransition,
         ));
   }
 
-  Future<void> checkUser(BuildContext context) async {
+  checkUser(BuildContext context) async {
+    print("CheckUser 1");
     if (_auth.currentUser != null) {
+      print("CheckUser 2");
       isUserLogIn = true;
-      final userF = await _fireStore.collection("users").get();
-
+      final userF = await _fireStore
+          .collection("users")
+          .where("username", isEqualTo: _auth.currentUser.email)
+          .get();
+      print(userF.docs.length);
       for (var user in userF.docs) {
         if (user.data()["username"] == _auth.currentUser.email.toString()) {
           if (user.data()["isStudent"]) {
+            print("CheckUser 3");
             isStudent = true;
+            print(isStudent);
           } else {
             isStudent = false;
           }
@@ -124,7 +142,7 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  Future<void> checkConnectivity(BuildContext context) async {
+  checkConnectivity(BuildContext context) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
@@ -143,9 +161,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget nextScreen() {
+    print("UserLogin" + isUserLogIn.toString());
+    print("Student" + isStudent.toString());
     if (isUserLogIn == true && isStudent == true) {
+      print("Student Screen");
       return StudentHomeScreen();
-    } else if (isUserLogIn == true) {
+    } else if (isUserLogIn == true && isStudent == false) {
+      print("Year Screen");
       return YearScreen();
     } else {
       return LoginScreen();

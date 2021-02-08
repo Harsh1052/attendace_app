@@ -41,6 +41,8 @@ dependencies:
   connectivity: ^2.0.2
   flutter_local_notifications: ^3.0.3
   workmanager: ^0.2.3
+  intl: ^0.16.1
+  flutter_slider_drawer: ^1.2.1
 
 dev_dependencies:
   flutter_test:

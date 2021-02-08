@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:workmanager/workmanager.dart';
 
 class CheckingData {
   final _firestore = FirebaseFirestore.instance;
   String professorName = "unknown";
   String year = "unknown";
+  String time = "unknown";
 
   Future<bool> checkingData() async {
     try {
@@ -17,6 +19,9 @@ class CheckingData {
       for (var i in last.docs) {
         professorName = i.data()["professorName"].toString();
         year = i.data()["StudentYear"];
+        Timestamp timestamp = i.data()["date"];
+        time = DateFormat("hh:mm a").format(timestamp.toDate()).toString();
+        print("time===" + time);
       }
 
       if (professorName != ".") {
@@ -34,7 +39,13 @@ class CheckingData {
     await checkingData();
     Workmanager.registerPeriodicTask(
       "4",
-      "Attendance taken by" + professorName + " of " + year + " year",
+      "Attendance taken by " +
+          professorName +
+          " of " +
+          year +
+          " year" +
+          " At " +
+          time,
       frequency: Duration(hours: 1),
       constraints: Constraints(
         networkType: NetworkType.connected,
