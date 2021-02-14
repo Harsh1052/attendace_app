@@ -39,17 +39,11 @@ class CheckingData {
     await checkingData();
     Workmanager.registerPeriodicTask(
       "4",
-      "Attendance taken by " +
-          professorName +
-          " of " +
-          year +
-          " year" +
-          " At " +
-          time,
+      professorName + " take " + year + " year attendance" + " At " + time,
       frequency: Duration(hours: 1),
       constraints: Constraints(
-        networkType: NetworkType.connected,
-      ),
+          //networkType: NetworkType.connected,
+          ),
     );
   }
 }

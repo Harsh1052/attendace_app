@@ -3,6 +3,7 @@ import 'package:attendace_app/screens/profile_screen.dart';
 import 'package:attendace_app/screens/student_home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'add_new_professor.dart';
 import 'add_new_student.dart';
 import 'login_screen.dart';
@@ -23,6 +24,7 @@ class _YearScreenState extends State<YearScreen> {
     c.checkingData();
     c.workManager();
     return Scaffold(
+      drawerEdgeDragWidth: MediaQuery.of(context).size.width,
       drawer: Drawer(
         child: SafeArea(
           child: ListView(

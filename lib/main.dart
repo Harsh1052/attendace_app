@@ -34,13 +34,7 @@ void callbackDispatcher() {
     // initialise settings for both Android and iOS device.
     var settings = new InitializationSettings(android: android, iOS: IOS);
     flip.initialize(settings);
-    // CheckingData c = CheckingData();
-    // c.checkingData();
-
     _showNotificationWithDefaultSound(flip, task);
-    print("In If Loop");
-
-    // _showNotificationWithDefaultSound(flip, task);
     return Future.value(true);
   });
 }
@@ -49,20 +43,19 @@ Future _showNotificationWithDefaultSound(flip, String data) async {
   // Show a notification after every 15 minute with the first
   // appearance happening a minute after invoking the method
   var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
-    'My ID',
-    'Harsh Sureja',
-    'Unknown',
-    importance: Importance.max,
-    priority: Priority.high,
-  );
+      'My ID', 'Harsh Sureja', 'Unknown',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      visibility: NotificationVisibility.public,
+      sound: RawResourceAndroidNotificationSound('notification_sound'));
   var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
 
   // initialise channel platform for both Android and iOS device.
   var platformChannelSpecifics = new NotificationDetails(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
-  await flip.show(0, 'Attendance App', data, platformChannelSpecifics,
-      payload: 'Default_Sound');
+  await flip.show(0, 'Attendance App', data, platformChannelSpecifics);
 }
 
 class MyApp extends StatefulWidget {
@@ -103,6 +96,7 @@ class _MyAppState extends State<MyApp> {
                 )),
           ),
           nextScreen: FutureBuilder(
+            initialData: CircularProgressIndicator(),
             builder: (context, initialData) {
               if (connectivity) {
                 return nextScreen();
@@ -114,14 +108,12 @@ class _MyAppState extends State<MyApp> {
           ),
           backgroundColor: Colors.white,
           duration: 2000,
-          splashTransition: SplashTransition.sizeTransition,
+          splashTransition: SplashTransition.fadeTransition,
         ));
   }
 
   checkUser(BuildContext context) async {
-    print("CheckUser 1");
     if (_auth.currentUser != null) {
-      print("CheckUser 2");
       isUserLogIn = true;
       final userF = await _fireStore
           .collection("users")
@@ -131,7 +123,6 @@ class _MyAppState extends State<MyApp> {
       for (var user in userF.docs) {
         if (user.data()["username"] == _auth.currentUser.email.toString()) {
           if (user.data()["isStudent"]) {
-            print("CheckUser 3");
             isStudent = true;
             print(isStudent);
           } else {
@@ -164,10 +155,8 @@ class _MyAppState extends State<MyApp> {
     print("UserLogin" + isUserLogIn.toString());
     print("Student" + isStudent.toString());
     if (isUserLogIn == true && isStudent == true) {
-      print("Student Screen");
       return StudentHomeScreen();
     } else if (isUserLogIn == true && isStudent == false) {
-      print("Year Screen");
       return YearScreen();
     } else {
       return LoginScreen();
