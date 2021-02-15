@@ -96,7 +96,6 @@ class _MyAppState extends State<MyApp> {
                 )),
           ),
           nextScreen: FutureBuilder(
-            initialData: CircularProgressIndicator(),
             builder: (context, initialData) {
               if (connectivity) {
                 return nextScreen();
