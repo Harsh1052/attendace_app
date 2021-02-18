@@ -98,7 +98,7 @@ class _AddProfessorScreenState extends State<AddProfessorScreen> {
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Text(
-                "# Select Student Status:",
+                "# Select Professor Status:",
                 style: TextStyle(fontSize: 18.0),
               ),
             ),
@@ -112,6 +112,7 @@ class _AddProfessorScreenState extends State<AddProfessorScreen> {
                   });
                 },
                 value: st,
+                dropdownColor: Colors.blueAccent,
               ),
             ),
           ],
@@ -156,6 +157,7 @@ class _AddProfessorScreenState extends State<AddProfessorScreen> {
               toastLength: Toast.LENGTH_LONG,
               timeInSecForIosWeb: 1,
               textColor: Colors.white,
+              backgroundColor: Colors.green,
               fontSize: 16.0));
 
       Navigator.pop(context);
@@ -165,7 +167,8 @@ class _AddProfessorScreenState extends State<AddProfessorScreen> {
       });
 
       Fluttertoast.showToast(
-          msg: "Please Fill All Details",
+          backgroundColor: Colors.orangeAccent,
+          msg: "Please Fill All Details!!!",
           toastLength: Toast.LENGTH_LONG,
           timeInSecForIosWeb: 1,
           textColor: Colors.white,

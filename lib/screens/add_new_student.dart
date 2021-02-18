@@ -230,6 +230,7 @@ class _AddNewStudentState extends State<AddNewStudent> {
 
       Fluttertoast.showToast(
           msg: "Please Fill All Details",
+          backgroundColor: Colors.orangeAccent,
           toastLength: Toast.LENGTH_LONG,
           timeInSecForIosWeb: 1,
           textColor: Colors.white,
