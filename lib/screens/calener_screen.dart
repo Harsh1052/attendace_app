@@ -223,6 +223,7 @@ class _CalendarScreenState extends State<CalendarScreen>
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    controller.dispose();
     _calendarController.dispose();
     controller.dispose();
   }

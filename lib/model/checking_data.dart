@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -22,9 +23,10 @@ class CheckingData {
         Timestamp timestamp = i.data()["date"];
         time = DateFormat("hh:mm a").format(timestamp.toDate()).toString();
         print("time===" + time);
+        print("Professor Name:-" + professorName);
       }
 
-      if (professorName != ".") {
+      if (professorName != "unknown") {
         return true;
       } else {
         return false;
@@ -38,7 +40,7 @@ class CheckingData {
   void workManager() async {
     await checkingData();
     Workmanager.registerPeriodicTask(
-      "4",
+      UniqueKey().toString(),
       professorName + " take " + year + " year attendance" + " At " + time,
       frequency: Duration(hours: 1),
       constraints: Constraints(

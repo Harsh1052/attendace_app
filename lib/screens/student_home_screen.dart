@@ -20,7 +20,7 @@ class StudentHomeScreen extends StatefulWidget {
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
   var auth = FirebaseAuth.instance;
   var fireStore = FirebaseFirestore.instance;
-  bool isStudent;
+  bool isStudent = true;
   String currentUser;
 
   bool notification = true;
@@ -28,6 +28,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   String branchP;
   String enrollNoP;
   String mobileNoP;
+  String statusP;
   String nameP;
   String yearP;
   String usernameP;
@@ -42,6 +43,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     // TODO: implement initState
     super.initState();
     currentUser = auth.currentUser.email;
+    checkStudent();
   }
 
   @override
@@ -52,39 +54,39 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     List<String> userN = currentUser.split("@");
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(userN[0]),
-        actions: [
-          IconButton(
-              icon: Icon(Icons.login_outlined),
-              onPressed: () async {
-                setState(() {
-                  loading = false;
-                });
-                await auth.signOut();
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()));
-              }),
-          IconButton(
-              icon: Icon(Icons.person),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ProfileScreen(
-                              branch: branchP,
-                              enrollNo: enrollNoP,
-                              mobileNo: mobileNoP,
-                              name: nameP,
-                              year: yearP,
-                              isStudent: isStudentP,
-                              username: usernameP,
-                              id: id,
-                              imageURL: imageURL,
-                            )));
-              }),
-        ],
-      ),
+      appBar: isStudent
+          ? AppBar(title: Text(userN[0]), actions: [
+              IconButton(
+                  icon: Icon(Icons.login_outlined),
+                  onPressed: () async {
+                    setState(() {
+                      loading = false;
+                    });
+                    await auth.signOut();
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()));
+                  }),
+              IconButton(
+                  icon: Icon(Icons.person),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProfileScreen(
+                                  branch: branchP,
+                                  enrollNo: enrollNoP,
+                                  mobileNo: mobileNoP,
+                                  name: nameP,
+                                  year: yearP,
+                                  isStudent: isStudentP,
+                                  username: usernameP,
+                                  id: id,
+                                  imageURL: imageURL,
+                                  status: statusP,
+                                )));
+                  }),
+            ])
+          : null,
       body: !loading
           ? Center(child: CircularProgressIndicator())
           : Visibility(
@@ -121,6 +123,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       usernameP = user.data()["username"];
                       id = user.data()["id"];
                       imageURL = user.data()["imageURL"];
+                      statusP = user.data()["status"];
 
                       if (!user.data()["isStudent"]) {
                         isStudent = false;
@@ -279,9 +282,14 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     );
                   } else {
                     CheckingData c = CheckingData();
-                    c.checkingData();
+
                     c.workManager();
-                    return ListView.builder(
+                    return ListView.separated(
+                        separatorBuilder: (context, index) => Divider(
+                              indent: 2.0,
+                              endIndent: 2.0,
+                              color: Colors.blueAccent,
+                            ),
                         itemCount: pFirstName.length,
                         itemBuilder: (context, index) => Padding(
                               padding: const EdgeInsets.all(5.0),
@@ -305,8 +313,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                       )
                                     : CircleAvatar(
                                         radius: 35.0,
-                                        backgroundImage:
-                                            NetworkImage(pImageURL[index]),
+                                        backgroundImage: NetworkImage(
+                                          pImageURL[index],
+                                        ),
                                         backgroundColor: Colors.transparent,
                                       ),
                               ),
@@ -317,5 +326,18 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               ),
             ),
     );
+  }
+
+  checkStudent() async {
+    var doc = await fireStore
+        .collection("users")
+        .where("username", isEqualTo: currentUser.toString())
+        .get();
+
+    for (var d in doc.docs) {
+      isStudent = d.data()["isStudent"];
+
+      print("isStuent" + isStudent.toString());
+    }
   }
 }

@@ -1,12 +1,12 @@
 import 'dart:io';
 
+import 'package:android_intent/android_intent.dart';
+import 'package:attendace_app/constantas.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../constantas.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String branch;
@@ -18,6 +18,7 @@ class ProfileScreen extends StatefulWidget {
   final bool isStudent;
   final String id;
   final String imageURL;
+  final String status;
 
   ProfileScreen(
       {this.enrollNo,
@@ -28,7 +29,8 @@ class ProfileScreen extends StatefulWidget {
       this.username,
       this.isStudent,
       this.id,
-      this.imageURL});
+      this.imageURL,
+      this.status});
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -40,110 +42,314 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _fireStore = FirebaseFirestore.instance;
   String downloadedUR;
   bool loading = false;
+  bool isShow = true;
 
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
-
     if (widget.imageURL != "no URL") {
       downloadedUR = widget.imageURL;
     }
+    isShow = isItOrNot(widget.status);
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Colors.blueAccent, Colors.lightBlue])),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: downloadedUR == null
-                    ? CircleAvatar(
-                        backgroundImage: ExactAssetImage(
-                          "assets/images/one.jpg",
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Card(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)),
+            color: Colors.blue,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 0.30,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                  gradient: LinearGradient(
+                      tileMode: TileMode.repeated,
+                      colors: [
+                        Colors.blueAccent,
+                        Colors.lightBlue,
+                        Colors.blue
+                      ])),
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.arrow_back),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          color: Colors.white,
                         ),
-                        radius: 60.0,
-                      )
-                    : loading
-                        ? CircularProgressIndicator(
-                            backgroundColor: Colors.white,
-                          )
-                        : CircleAvatar(
-                            radius: 60.0,
-                            backgroundImage: NetworkImage(
-                              downloadedUR,
-                            ),
-                            foregroundColor: Colors.white,
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 12.0),
+                          child: Text(
+                            "Profile",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25.0,
+                                color: Colors.white),
                           ),
-              ),
-              RaisedButton(
-                color: Colors.blueAccent,
-                onPressed: () async {
-                  await pickPicture();
-                },
-                child: Text(
-                  "Update Profile photo",
-                  style: TextStyle(fontSize: 10.0),
-                ),
-              ),
-              SizedBox(
-                height: 30.0,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Text(
-                      "Username:",
-                      style: kLableStyle,
+                        ),
+                      ],
                     ),
-                    Text(
-                      widget.username,
-                      style: kInformationStyle.copyWith(color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Text(
-                      "Name:",
-                      style: kLableStyle,
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: downloadedUR == null
+                          ? GestureDetector(
+                              onTap: () async {
+                                await pickPicture();
+                              },
+                              child: CircleAvatar(
+                                backgroundImage: ExactAssetImage(
+                                  "assets/images/college_logo.jpg",
+                                ),
+                                radius: 55.0,
+                              ),
+                            )
+                          : loading
+                              ? CircularProgressIndicator(
+                                  backgroundColor: Colors.white,
+                                )
+                              : GestureDetector(
+                                  onTap: () async {
+                                    await pickPicture();
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 55.0,
+                                    backgroundImage: NetworkImage(
+                                      downloadedUR,
+                                    ),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                ),
                     ),
                     Text(
                       widget.name,
-                      style: kInformationStyle.copyWith(color: Colors.white),
+                      style: kLabaleStyle,
+                    ),
+                    SizedBox(
+                      height: 2,
                     ),
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Text(
-                      "Mobile No.:",
-                      style: kLableStyle,
-                    ),
-                    Text(
-                      widget.mobileNo,
-                      style: kInformationStyle.copyWith(color: Colors.white),
-                    ),
-                  ],
-                ),
-              )
-            ],
+            ),
           ),
-        ),
+          !isShow
+              ? Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "username",
+                              style: kInformationLableStyle,
+                            ),
+                            Text(
+                              widget.username,
+                              style: kInformationStyle,
+                            )
+                          ],
+                        ),
+                      ),
+                      Divider(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Status",
+                              style: kInformationLableStyle,
+                            ),
+                            Text(
+                              widget.status,
+                              style: kInformationStyle,
+                            )
+                          ],
+                        ),
+                      ),
+                      Divider(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Mobile No.",
+                              style: kInformationLableStyle,
+                            ),
+                            Text(
+                              widget.mobileNo,
+                              style: kInformationStyle,
+                            )
+                          ],
+                        ),
+                      ),
+                      Divider(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                final AndroidIntent intent = AndroidIntent(
+                                    action: 'action_view',
+                                    data: Uri.encodeFull(
+                                        'http://www.lecm.cteguj.in/'),
+                                    package: 'com.android.chrome');
+                                intent.launch();
+                              },
+                              child: Text(
+                                "About us",
+                                style: kInformationStyle,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "username",
+                              style: kInformationLableStyle,
+                            ),
+                            Text(
+                              widget.username,
+                              style: kInformationStyle,
+                            )
+                          ],
+                        ),
+                      ),
+                      Divider(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Mobile No.",
+                              style: kInformationLableStyle,
+                            ),
+                            Text(
+                              widget.mobileNo,
+                              style: kInformationStyle,
+                            )
+                          ],
+                        ),
+                      ),
+                      Divider(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Branch",
+                              style: kInformationLableStyle,
+                            ),
+                            Text(
+                              widget.branch,
+                              style: kInformationStyle,
+                            )
+                          ],
+                        ),
+                      ),
+                      Divider(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Enrollment No.",
+                              style: kInformationLableStyle,
+                            ),
+                            Text(
+                              widget.enrollNo,
+                              style: kInformationStyle,
+                            )
+                          ],
+                        ),
+                      ),
+                      Divider(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Year",
+                              style: kInformationLableStyle,
+                            ),
+                            Text(
+                              widget.year,
+                              style: kInformationStyle,
+                            )
+                          ],
+                        ),
+                      ),
+                      Divider(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                if (Platform.isAndroid) {
+                                  print("In Android");
+                                  final AndroidIntent intent = AndroidIntent(
+                                      action: 'action_view',
+                                      data: Uri.encodeFull(
+                                          'http://www.lecm.cteguj.in/'),
+                                      package: 'com.android.chrome');
+                                  await intent.launch();
+                                } else {
+                                  print("Not Compitable");
+                                }
+                              },
+                              child: Text(
+                                "About us",
+                                style: kInformationStyle,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+        ],
       ),
     );
   }
@@ -211,5 +417,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       print("Error Retrive:----------" + e);
     }
+  }
+
+  bool isItOrNot(String status) {
+    if (status == null) {
+      return true;
+    }
+    return false;
   }
 }

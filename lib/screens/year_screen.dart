@@ -21,7 +21,6 @@ class _YearScreenState extends State<YearScreen> {
   Widget build(BuildContext context) {
     userList = _auth.email.toString().split("@");
     CheckingData c = CheckingData();
-    c.checkingData();
     c.workManager();
     return Scaffold(
       drawerEdgeDragWidth: MediaQuery.of(context).size.width,
